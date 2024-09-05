@@ -33,7 +33,7 @@ public class DataWorkflowService : IDataWorkflowService
         };
 
         _getFirstDataBlock = new(async input => await _clientCaller.CallFirstEndpointAsync(input) ,executionDataflowBlockOptions);
-        _batchBlock = new BatchBlock<Data>(10, groupingDataflowBlockOptions);
+        _batchBlock = new BatchBlock<Data>(4, groupingDataflowBlockOptions);
         _getLastDataBlock = new(async input => await _clientCaller.CallLastEndpointAsync(input) ,executionDataflowBlockOptions);
 
         _getFirstDataBlock.LinkTo(_batchBlock, linkOptions);
