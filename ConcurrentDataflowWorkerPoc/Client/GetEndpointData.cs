@@ -13,6 +13,7 @@ public class GetEndpointData : IGetEndpointData
     private readonly HttpClient _client;
     private readonly Random _random;
     private int _iterator;
+    private int _callLastEndpointAsyncCountTracker = 0;
 
     public GetEndpointData(HttpClient client)
     {
@@ -29,6 +30,7 @@ public class GetEndpointData : IGetEndpointData
         {
             data.Payload = await response.Content.ReadAsStringAsync();
             data.MasterFakedId = _iterator++;
+            Console.WriteLine($"CallFirstEndpointAsync");
         }
 
         return data;
@@ -37,6 +39,7 @@ public class GetEndpointData : IGetEndpointData
     public async Task<List<Data>> CallLastEndpointAsync(IEnumerable<Data> inputDataBundle, string urlPath = "/posts")
     {
         List<Data> dataList = [];
+        int ct = 0;
         foreach (Data data in inputDataBundle)
         {
             var response = await _client.GetAsync(urlPath);
@@ -44,6 +47,7 @@ public class GetEndpointData : IGetEndpointData
             {
                 data.Days = _random.Next(1, 500);
                 dataList.Add(data);
+                Console.WriteLine($"CallLastEndpointAsync - Current Call: {ct++}; Total Call: {_callLastEndpointAsyncCountTracker++}");
             }
         }
 
