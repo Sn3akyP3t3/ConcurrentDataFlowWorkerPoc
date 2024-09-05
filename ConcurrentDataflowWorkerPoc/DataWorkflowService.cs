@@ -24,7 +24,7 @@ public class DataWorkflowService : IDataWorkflowService
 
         GroupingDataflowBlockOptions groupingDataflowBlockOptions = new()
         {
-            Greedy = false
+            Greedy = true
         };
 
         ExecutionDataflowBlockOptions executionDataflowBlockOptions = new()
