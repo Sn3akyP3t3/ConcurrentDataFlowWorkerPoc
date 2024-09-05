@@ -50,7 +50,7 @@ public class DataWorkflowService : IDataWorkflowService
             await _getFirstDataBlock.SendAsync(dataSet);
         }
 
-        _getFirstDataBlock.Complete();
+        _batchBlock.Complete();
         await _getLastDataBlock.Completion;  // This appears to encounter a deadlock
 
         _getLastDataBlock.TryReceiveAll(out var dataListOfLists);
