@@ -51,15 +51,21 @@ public class DataWorkflowService : IDataWorkflowService
         }
 
         _getFirstDataBlock.Complete();
-        await _getLastDataBlock.Completion;  // This appears to encounter a deadlock
+        IAsyncEnumerable<List<Data>> dataSetsBundle = _getLastDataBlock.ReceiveAllAsync();
 
-        _getLastDataBlock.TryReceiveAll(out var dataListOfLists);
-        foreach (var dataSet in from dataBundle in dataListOfLists
-                                from dataSet in dataBundle
-                                select dataSet)
+        await foreach (var dataSets in dataSetsBundle)
         {
-            Console.WriteLine($"FakedId: {dataSet.FakedId}; MasterFakedId: {dataSet.MasterFakedId}; Days: {dataSet.Days}; Payload: {dataSet.Payload};");
+            foreach (var dataSet in dataSets)
+            {
+                Console.WriteLine($"FakedId: {dataSet.FakedId}; MasterFakedId: {dataSet.MasterFakedId}; Days: {dataSet.Days}; Payload: {dataSet.Payload};");
+            }
         }
+
+        // Although _getLastDataBlock is completed when the async foreach loop above concludes, it
+        // might have been completed in a cancelled or faulty state. To ensure exceptions and such
+        // related to cancellation or faulty completion are propagated by the async state machine of the
+        // async DoProcess method, _getLastDataBlock.Completion is still being awaited after the loop.
+        await _getLastDataBlock.Completion;
 
         string validate = string.Empty;
     }
